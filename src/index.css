@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.listContainer {
+  padding: 20px;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+}
+
+.eachCard {
+  border-radius: 4px;
+  height: auto;
+  padding: 15px;
+  margin: 0px 12px;
+  text-align: left;
+  width: 230px;
+  border: none;
+  background: #e2e4e6;
+}
+
+.listTitle {
+  margin: 6px 0px 15px;
+  color: #444;
+  font-weight: normal;
+  display: inline-block;
+}
