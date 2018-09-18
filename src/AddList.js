@@ -18,6 +18,8 @@ class AddList extends Component {
     this.saveTitle = this.saveTitle.bind(this);
     this.saveItem = this.saveItem.bind(this);
     this.editItem = this.editItem.bind(this);
+    this.swapItem = this.swapItem.bind(this);
+    this.deleteItem = this.deleteItem.bind(this);
     this.handleAction = this.handleAction.bind(this);
     this.cancleList = this.cancleList.bind(this);
   }
@@ -47,17 +49,45 @@ class AddList extends Component {
     );
   }
 
-  editItem(newItem, listId) {
+  deleteItem(item, listId, itemId) {
     const { listArray } = this.state;
-    const listArrayCopy = listArray.slice();
-    let currentListIndex = listArrayCopy.findIndex( list => list.id === listId);
-    listArrayCopy[currentListIndex].itemList = newItem;
-
-    this.setState(prevState => ({
-      listArray : listArrayCopy
-      })
-    );
+    var listArrayCopy = listArray.slice();
+    var listArrayIndex = listArrayCopy.findIndex(list => list.id === listId);
+    let itemList = listArray[listArrayIndex].itemList.slice();
+    var index = itemList.findIndex(item => item.id === itemId);
+    itemList.splice(index,1);
+    let newListObject = Object.assign({},listArray[listArrayIndex], {itemList: itemList} );
+    listArrayCopy.splice(listArrayIndex,1,newListObject);
+    this.setState({listArray: listArrayCopy});
   }
+
+  editItem(item, listId, itemId) {
+    const { listArray } = this.state;
+    var listArrayCopy = listArray.slice();
+    var listArrayIndex = listArrayCopy.findIndex(list => list.id === listId);
+    let itemList = listArray[listArrayIndex].itemList.slice();
+    var index = itemList.findIndex(item => item.id === itemId);
+    let newItem = Object.assign({},itemList[index], {value: item} );
+    itemList.splice(index,1,newItem);
+    let newListObject = Object.assign({},listArray[listArrayIndex], {itemList: itemList} );
+    listArrayCopy.splice(listArrayIndex,1,newListObject);
+    this.setState({listArray: listArrayCopy});
+  }
+
+  swapItem(dragItemId, hoverItemId, listId) {
+     const { listArray } = this.state;
+     const listArrayCopy = listArray.slice();
+     let currentListIndex = listArrayCopy.findIndex( list => list.id === listId);
+     let itemList = listArrayCopy[currentListIndex].itemList.slice();
+     const dragItemIndex = itemList.findIndex( item => item.id === dragItemId);
+     const hoverItemIndex = itemList.findIndex( item => item.id === hoverItemId);
+     var swapV = itemList[dragItemIndex];
+     itemList[dragItemIndex] = itemList[hoverItemIndex];
+     itemList[hoverItemIndex] = swapV;
+     let newListObject = Object.assign({},listArray[currentListIndex], {itemList: itemList} );
+     listArrayCopy.splice(currentListIndex,1,newListObject);
+     this.setState({listArray: listArrayCopy});
+   }
 
   saveTitle(e) {
     e.preventDefault();
@@ -69,14 +99,13 @@ class AddList extends Component {
   }
 
   render() {
-
     const { listArray, listAdd, listTitle } = this.state;
 
     return (
       <div className="listContainer">
         <EachListContainer>
-        { listArray.map( (list,index) => { return (<EachList list={list} key={index}
-          saveItem={this.saveItem} editItem={this.editItem}  /> )}
+        { listArray.map( (list,index) => { return (<EachList list={list} itemList={list.itemList}  key={index}
+          saveItem={this.saveItem} editItem={this.editItem} deleteItem={this.deleteItem} swapItem={this.swapItem} /> )}
         )}
         </EachListContainer>
 

@@ -8,15 +8,12 @@ class EachList extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { itemAdd: false, currentItem: '', itemList: props.list.itemList };
+    this.state = { itemAdd: false, currentItem: ''};
 
     this.addItem = this.addItem.bind(this);
     this.handleAction = this.handleAction.bind(this);
     this.saveItem = this.saveItem.bind(this);
     this.cancleItem = this.cancleItem.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
-    this.editItem = this.editItem.bind(this);
-    this.swapItem = this.swapItem.bind(this);
   }
 
 
@@ -37,38 +34,6 @@ class EachList extends Component {
 
   }
 
-  deleteItem(item) {
-    const { itemList } = this.state;
-    const { list } = this.props;
-    var index = itemList.indexOf(item);
-    var itemListCopy = [...itemList];
-    itemListCopy.splice(index,1);
-    this.setState({itemList: itemListCopy});
-    this.props.editItem(itemListCopy, list.id);
-  }
-
-  editItem(item, listId, itemId) {
-    const { itemList } = this.state;
-    var index = itemList.indexOf(item);
-    var itemListCopy = [...itemList];
-    itemListCopy.splice(index,1, item);
-    this.setState({itemList: itemListCopy});
-
-    this.props.editItem(itemListCopy, listId);
-  }
-
-  swapItem(dragItemId, hoverItemId) {
-    const { itemList } = this.state;
-    const { list } = this.props;
-    var itemListCopy = [...itemList];
-    const dragItemIndex = itemListCopy.findIndex( item => item.id === dragItemId);
-    const hoverItemIndex = itemListCopy.findIndex( item => item.id === hoverItemId);
-    var swapV = itemListCopy[dragItemIndex];
-    itemListCopy[dragItemIndex] = itemListCopy[hoverItemIndex];
-    itemListCopy[hoverItemIndex] = swapV;
-    this.setState({itemList : itemListCopy});
-    this.props.editItem(itemListCopy, list.id);
-  }
   saveItem(e) {
     e.preventDefault();
     const { list } = this.props;
@@ -77,16 +42,9 @@ class EachList extends Component {
 
   }
 
-  componentDidUpdate(prevProps) {
-    if(this.props.list.id !== prevProps.list.id) {
-      this.setState({itemList: this.props.list.itemList});
-    }
-  }
-
   render() {
-
-    const { list, connectDropTarget } = this.props;
-    const { itemList, itemAdd, currentItem } = this.state;
+    const { itemList, list, connectDropTarget } = this.props;
+    const { itemAdd, currentItem } = this.state;
 
     return connectDropTarget(
       <li className="eachCard">
@@ -94,8 +52,8 @@ class EachList extends Component {
 
         <ItemContainer>
           { itemList.map( (item,index) => { return (<EachItem key={index} listId={list.id}
-          item={item} editItem={this.editItem} deleteItem={this.deleteItem}
-          swapItem={this.swapItem} /> )}
+          item={item} editItem={this.props.editItem} deleteItem={this.props.deleteItem}
+          swapItem={this.props.swapItem} /> )}
           )}
         </ItemContainer>
 

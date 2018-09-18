@@ -13,7 +13,7 @@ class EachItem extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { editItem: false, currentItem: props.item};
+    this.state = { editItem: false, currentItem: ''};
     this.saveEditItem = this.saveEditItem.bind(this);
     this.deleteItem = this.deleteItem.bind(this);
     this.handleAction = this.handleAction.bind(this);
@@ -21,7 +21,7 @@ class EachItem extends Component {
   }
 
   startEdit() {
-    this.setState({editItem: true});
+    this.setState({editItem: true, currentItem: this.props.item.value});
   }
 
   saveEditItem(e) {
@@ -29,38 +29,30 @@ class EachItem extends Component {
     const { item, listId } = this.props;
     const { currentItem } = this.state;
     this.props.editItem(currentItem, listId, item.id);
-    this.setState({ editItem: false,  });
+    this.setState({ editItem: false, currentItem: '' });
   }
 
   deleteItem() {
+    const { item, listId } = this.props;
     const { currentItem } = this.state;
-    this.props.deleteItem(currentItem);
+    this.props.deleteItem(currentItem, listId, item.id);
   }
 
   handleAction(e) {
-    const { currentItem } = this.state;
-    const newObj = Object.assign({}, currentItem, { value: e.target.value })
-    this.setState({currentItem: newObj});
-  }
-
-  componentDidUpdate(prevProps) {
-    if(this.props.item.id !== prevProps.item.id) {
-      this.setState({currentItem: this.props.item});
-    }
-
+    this.setState({currentItem: e.target.value});
   }
 
   render() {
 
-    const { isDragging, connectDragSource, connectDropTarget } = this.props;
+    const { isDragging, connectDragSource, connectDropTarget, item } = this.props;
     const opacity = isDragging ? 0 : 1;
-    const { currentItem, editItem } = this.state;
+    const { editItem, currentItem } = this.state;
 
     return connectDragSource(connectDropTarget(
       <li className='eachItem'>
       {!editItem &&(
         <span style={{ ...style, opacity }}>
-          {currentItem.value}
+          {item.value}
         <ActionButton>
           <i className="fa fa-times" onClick={this.deleteItem}></i>
           <i className="fa fa-edit" onClick={this.startEdit}></i>
@@ -69,8 +61,8 @@ class EachItem extends Component {
       )}
       {editItem && (
         <form onSubmit={this.saveEditItem}>
-          <textarea  value={currentItem.value} className='editItem' onChange={this.handleAction} />
-          <input type="submit" className='add' value='Save' />
+          <textarea  value={currentItem} className='editItem' onChange={this.handleAction} />
+          <input type="submit" className='add' value='Save' disabled={!currentItem.length} />
         </form>
       )}
       </li>
@@ -93,7 +85,7 @@ const cardSource = {
     const dropResult = monitor.getDropResult();
 
     if ( dropResult && dropResult.listId !== item.listId ) {
-      props.deleteItem(props.item);
+      props.deleteItem(props.item, props.listId, props.item.id);
     }
   }
 };
@@ -138,7 +130,7 @@ const cardTarget = {
 
     // Time to actually perform the action
     if ( props.listId === sourceListId ) {
-      props.swapItem(dragItemId, hoverItemId);
+      props.swapItem(dragItemId, hoverItemId, props.listId);
 
       // Note: we're mutating the monitor item here!
       // Generally it's better to avoid mutations,
